@@ -38,6 +38,27 @@ export default function Home() {
 
   const isMount = useRef(false);
 
+  function formatLogsForDownload(logs) {
+    return logs.map(log => `${log.speaker}: ${log.message}`).join('\n');
+  }
+
+  function downloadLogs(logs) {
+    const formattedText = formatLogsForDownload(logs);
+    const blob = new Blob([formattedText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'conversation-log.txt';
+    document.body.appendChild(a);
+    a.click();
+
+    // Clean up by removing the temporary anchor
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+
 
   useEffect(() => {
 
@@ -149,6 +170,10 @@ export default function Home() {
 
           {/* Link to Generated */}
           <div className="w-full md:h-[500px] overflow-y-auto">
+            <div>
+            <Button variant="filled" color="blue" onClick={downloadLogs(conversations)}>Download Conversation Log</Button>
+            </div>
+
             {
               conversations.length > 0 ? (
                 <div className="">
@@ -198,7 +223,7 @@ export default function Home() {
                 <div className="record-or-search-action z-50 absolute top-0 right-0">
                   <IconButton id="buttonStart" className="bg-gray-300">
                     <FontAwesomeIcon onClick={(e) => {
-                        createVoiceConversation();
+                      createVoiceConversation();
                     }} icon={isTextQuery ? faSearch : faMicrophone} size="2x" color="blue" /> {/* Solid Icon */}
                   </IconButton>
                 </div>
