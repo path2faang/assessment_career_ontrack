@@ -154,7 +154,7 @@ export default function Home() {
                 <div className="">
                   {
                     conversations.map(conversation => (
-                      <Link href={`?token=${conversation._id}`}>
+                      <Link key={conversation._id} href={`?token=${conversation._id}`}>
                         <section className="border-t mt-5 cursor-pointer border-gray-700 w-11/12 mx-auto rounded-lg hover:bg-blue-gray-900 p-3 ">
                           <Typography as={"h3"} className="text-base text-purple-100">{conversation?.asked_conversation_data.split(" ").slice(0, 24).join(" ") + "..."}</Typography>
                           <Typography as={"h5"} className="text-sm text-white">{conversation.asked_conversation_data.split(" ").slice(0, 55).join(" ") + "..."} </Typography>
