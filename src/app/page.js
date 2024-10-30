@@ -14,14 +14,14 @@ export default function Home() {
   const [error, setError] = useState('');
   const [conversations, setConversations] = useState([]);
   const [searchInput, setSearchInput] = useState(null);
-  const [auth, setAuth] = useState({});
+  const [auth, setAuth] = useState(null); // Initialize as null to handle unauthenticated state
   const [newConversation, setNewConversation] = useState({});
   const [spokenTranscript, setSpokenTranscript] = useState('');
 
   const isMount = useRef(false);
 
-  // Function to toggle text query mode
-  function isPressed(e) {
+  // Toggle between text and voice query mode
+  function isPressed() {
     setIsTextQuery(!isTextQuery);
   }
 
@@ -39,17 +39,16 @@ export default function Home() {
           if (res.data.success) {
             setAuth(res.data.data);
           } else {
-            setError("Failed to fetch user data");
+            setAuth(null); // Ensure auth is null if not authenticated
           }
         })
-        .catch(err => setError("An error occurred during authentication"));
+        .catch(() => setAuth(null));
 
       axiosPrivate.get("/conversations")
         .then(res => {
-          console.log(res.data.data);
           setConversations(res.data.data);
         })
-        .catch(err => setError(err.message));
+        .catch(() => setError("Failed to load conversations."));
     }
   }, []);
 
@@ -66,7 +65,6 @@ export default function Home() {
 
     recognition.onstart = () => {
       setIsRecording(true);
-      alert("Voice recognition started.");
     };
 
     recognition.onresult = async (event) => {
@@ -76,13 +74,12 @@ export default function Home() {
       speakResponse(responseText);
     };
 
-    recognition.onerror = (event) => {
-      alert("An error occurred during voice recognition: " + event.error);
+    recognition.onerror = () => {
+      alert("An error occurred during voice recognition.");
     };
 
     recognition.onend = () => {
       setIsRecording(false);
-      alert("Voice recognition ended.");
     };
 
     recognition.start();
@@ -96,7 +93,7 @@ export default function Home() {
       const responseText = res.data.data?.response_text;
       setNewConversation(responseText);
       return responseText;
-    } catch (error) {
+    } catch {
       setError("Failed to save conversation.");
       return "";
     }
@@ -110,7 +107,7 @@ export default function Home() {
 
   const createTextConversation = async () => {
     alert(`Search input: ${searchInput}`);
-    // Optionally, add logic to handle text conversation creation here.
+    // Add any further logic to handle text conversation creation
   };
 
   return (
@@ -151,8 +148,8 @@ export default function Home() {
                   <Image src={auth.profile_img} className="rounded-full" priority width={55} height={55} alt={auth.display_name} />
                 </div>
                 <div className="col-span-10 text-white">
-                  <h3 className="poppins-semibold poppins-regular">{auth?.display_name}</h3>
-                  <h3 className="text-xs poppins-regular">{auth?.email}</h3>
+                  <h3 className="poppins-semibold poppins-regular">{auth.display_name}</h3>
+                  <h3 className="text-xs poppins-regular">{auth.email}</h3>
                 </div>
               </div>
             ) : (
